@@ -1,5 +1,5 @@
 #Brands and Categories analysis
-
+____________________________________________________________________________________________________
 
 #Query to count the number of sold bikes by brand.
 SELECT b.brand_name, sum(oi.quantity) as sold_as_unit
@@ -53,7 +53,7 @@ JOIN categories c on p.category_id = c.category_id
 GROUP by c.category_name
 ORDER BY  total_sales DESC
 
-
+____________________________________________________________________________________________________
 
 
 #products by brand and category
@@ -97,4 +97,37 @@ GROUP by c.category_name, b.brand_name
 HAVING COUNT(p.product_id) > 0
 ORDER BY  avg_price DESC
 
+____________________________________________________________________________________________________
+
+#Category Growth. Time period 2016-01 to 2016-12
+
+#This query retrieves the total sold bikes by category in each month for the year 2016. 
+SELECT
+    MONTH(o.order_date) AS month,
+    c.category_name,
+    SUM(oi.quantity) AS sold_bikes
+FROM orders o JOIN order_items oi ON oi.order_id = o.order_id
+JOIN products p ON oi.product_id = p.product_id
+JOIN categories c ON p.category_id = c.category_id
+WHERE YEAR(o.order_date) = 2016
+GROUP BY month, c.category_name
+
+#The query provides insights into how the sales of bikes 
+#in each category have changed over consecutive months in the year 2016. 
+#The growth rate indicates whether the sales are increasing 
+#or decreasing compared to the previous month    
+SELECT category_name, month,
+    ROUND((sold_bikes - LAG(sold_bikes) OVER (PARTITION BY category_name ORDER BY month)) 
+	/ LAG(sold_bikes) OVER (PARTITION BY category_name ORDER BY month) * 100,2) 
+    AS growth_rate
+FROM 
+    (SELECT
+    MONTH(o.order_date) AS month,
+    c.category_name,
+    SUM(oi.quantity) AS sold_bikes
+FROM orders o JOIN order_items oi ON oi.order_id = o.order_id
+JOIN products p ON oi.product_id = p.product_id
+JOIN categories c ON p.category_id = c.category_id
+WHERE YEAR(o.order_date) = 2016
+GROUP BY month, c.category_name) AS sales_by_brand_month;
 
