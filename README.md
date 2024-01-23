@@ -1,4 +1,4 @@
-Archive - Database in csv files
+archive - Database in csv files
 
 python_script - for importing 'new_customers_for_each_year' table in Power BI
 
