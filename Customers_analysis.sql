@@ -1,7 +1,5 @@
 #Customers analysis
 
-
-
 #Total Customer Count:
 select count(*) from customers c 
 
@@ -14,8 +12,13 @@ select state, city, count(*) as Total_customers from customers c
 group by state, city
 order by Total_customers desc
 
-
-
+#new customers for each year
+SELECT YEAR(order_date) AS year, COUNT(DISTINCT customer_id) AS new_clients_count
+FROM orders o
+WHERE NOT EXISTS (SELECT 1 FROM orders o2
+        		  WHERE o2.customer_id = o.customer_id
+                  AND YEAR(o2.order_date) < YEAR(o.order_date))
+GROUP BY year;
 
 #Customer Contact Information Analysis. Query to check if there is missing contact information:
 select customer_id, first_name, last_name,
@@ -72,4 +75,5 @@ from (
     left join orders o ON c.customer_id = o.customer_id
     group by c.customer_id
 ) as customer_order_counts;
+
 
